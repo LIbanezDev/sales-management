@@ -1,6 +1,6 @@
 from datetime import date
 from typing import Dict
-from classes import Vendedor, Producto, EncabezadoVenta
+from dto.classes import Vendedor, Producto, EncabezadoVenta
 
 
 def validar_fecha(fecha: str) -> [bool, str or None]:
@@ -15,7 +15,7 @@ def validar_fecha(fecha: str) -> [bool, str or None]:
 
 
 def obtener_ultimo_enc_vta() -> EncabezadoVenta or None:
-    names_file = open('db/ENC_VTA.dat', 'r')
+    names_file = open('../db/ENC_VTA.dat', 'r')
     last = ""
     for line in names_file:
         last = line
@@ -27,7 +27,7 @@ def obtener_ultimo_enc_vta() -> EncabezadoVenta or None:
 
 
 def restar_stock_producto(cod_producto: int, cantidad: int):
-    productos = open('db/PRODUCTOS.dat')
+    productos = open('../db/PRODUCTOS.dat')
     productos.close()
 
 
@@ -76,9 +76,9 @@ def realizar_venta():
                 continue
             productos[codigo] = cantidad_a_comprar
 
-        # Paso todas las validaciones
-        encabezados_file = open('db/ENC_VTA.dat', 'a')
-        detalles_file = open('db/DET_VTA.dat', 'a')
+        # Pasó todas las validaciones
+        encabezados_file = open('../db/ENC_VTA.dat', 'a')
+        detalles_file = open('../db/DET_VTA.dat', 'a')
         for cod_producto in productos:
             detalles_file.write(str(ultimo_codigo).zfill(5) + ';' + str(cod_producto) + ';' + str(productos[cod_producto]) + '\n')
             restar_stock_producto(cod_producto=cod_producto, cantidad=productos[cod_producto])
