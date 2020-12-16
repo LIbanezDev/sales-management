@@ -1,5 +1,6 @@
-from mantenedores.ventas import realizar_venta, consultar_venta, anular_venta
 from os import path, mkdir
+
+from mantenedores.ventas import realizar_venta, consultar_venta, anular_venta
 
 
 def create_database():
