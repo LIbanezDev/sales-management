@@ -1,7 +1,9 @@
 from datetime import date
-from typing import Dict
-from dto.classes import Vendedor, Producto, EncabezadoVenta
 from os.path import dirname, join
+from typing import Dict
+
+from dto.classes import EncabezadoVenta
+from mantenedores import productos, vendedores
 
 dirname = dirname(__file__)
 
@@ -29,19 +31,6 @@ def obtener_ultimo_enc_vta() -> EncabezadoVenta or None:
     return EncabezadoVenta(int(numero), fecha, int(vendedor), estado)
 
 
-def restar_stock_producto(cod_producto: int, cantidad: int):
-    productos = open(join(dirname, '../db/PRODUCTOS.dat'))
-    productos.close()
-
-
-def obtener_producto(codigo: int) -> Producto or None:
-    return Producto(1, "PRODUCTO", 2300, 120)
-
-
-def obtener_vendedor(codigo: int) -> Vendedor or None:
-    return Vendedor(12345, "Lucas con 30 caracteres".zfill(30))
-
-
 def realizar_venta():
     try:
         ultimo_enc = obtener_ultimo_enc_vta()
@@ -56,19 +45,19 @@ def realizar_venta():
 
         # Validar vendedor
         cod_vendedor = int(input("Codigo de vendedor: "))
-        vendedor = obtener_vendedor(cod_vendedor)
+        vendedor = vendedores.obtener_uno(cod_vendedor)
         if vendedor is None:
             raise Exception('Vendedor no existe...')
 
-        productos: Dict[int, int] = {}  # {codigo: cantidad}
+        productos_dict: Dict[int, int] = {}  # {codigo: cantidad}
         while True:
             codigo = int(input("Ingrese codigo de producto, 0 para finalizar: "))
             if codigo == 0:
                 break
-            if codigo in productos:
+            if codigo in productos_dict:
                 print("Producto ya ha sido agregado, intente nuevamente")
                 continue  # Reintentando la venta
-            producto = obtener_producto(codigo)
+            producto = productos.obtener_uno(codigo)
             if producto is None:
                 print('Producto no existe en el registro, intente nuevamente.')
                 continue
@@ -77,17 +66,25 @@ def realizar_venta():
             if producto.stock < cantidad_a_comprar:
                 print("Solo quedan", producto.stock, "de", producto.nombre)
                 continue
-            productos[codigo] = cantidad_a_comprar
+            productos_dict[codigo] = cantidad_a_comprar
 
         # Pasó todas las validaciones
         encabezados_file = open(join(dirname, '../db/ENC_VTA.dat'), 'a')
         detalles_file = open(join(dirname, '../db/DET_VTA.dat'), 'a')
-        for cod_producto in productos:
-            detalles_file.write(str(ultimo_codigo).zfill(5) + ';' + str(cod_producto) + ';' + str(productos[cod_producto]) + '\n')
-            restar_stock_producto(cod_producto=cod_producto, cantidad=productos[cod_producto])
+        for cod_producto in productos_dict:
+            detalles_file.write(str(ultimo_codigo).zfill(5) + ';' + str(cod_producto) + ';' + str(productos_dict[cod_producto]) + '\n')
+            productos.modificar(cod_producto, {'cantidad': productos_dict[cod_producto]})
         encabezados_file.write(str(ultimo_codigo).zfill(5) + ';' + fecha + ';' + str(cod_vendedor) + ';' + 'V' + '\n')
         encabezados_file.close()
         detalles_file.close()
 
     except Exception as e:
         print(e)
+
+
+def consultar_venta():
+    pass
+
+
+def anular_venta():
+    pass
