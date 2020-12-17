@@ -1,13 +1,13 @@
 from os import path, mkdir
 
-from mantenedores.ventas import realizar_venta, consultar_venta, anular_venta
+from mantenedores import ventas, productos, vendedores
 
 
 def create_database():
-    file_names = ['ENC_VTA', 'DET_VTA', 'PRODUCTOS', 'VENDEDORES']
+    files_names = ['ENC_VTA', 'DET_VTA', 'PRODUCTOS', 'VENDEDORES']
     if not path.exists('./db'):
         mkdir('./db/')
-    for name in file_names:
+    for name in files_names:
         full_name = 'db/' + name + '.dat'
         if not path.exists(full_name):
             file = open(full_name, 'w')
@@ -30,11 +30,11 @@ while opt != 5:
         print('3. Anular venta')
         opt_final = int(input('Ingrese opcion: '))
         if opt_final == 1:
-            realizar_venta()
+            ventas.realizar_venta()
         elif opt_final == 2:
-            consultar_venta()
+            ventas.consultar_venta()
         elif opt_final == 3:
-            anular_venta()
+            ventas.anular_venta()
         else:
             print('Opcion no reconocida.')
     elif opt == 2:
@@ -44,6 +44,10 @@ while opt != 5:
         print('4. Eliminar vendedor')
         print('5. Listar vendedores')
         opt_final = int(input('Ingrese opcion: '))
+        if opt_final == 1:
+            vendedores.agregar()
+        elif opt_final == 5:
+            vendedores.listar()
     elif opt == 3:
         print('1. Agregar productos')
         print('2. Modificar productos')

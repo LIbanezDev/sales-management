@@ -72,9 +72,9 @@ def realizar_venta():
         encabezados_file = open(join(dirname, '../db/ENC_VTA.dat'), 'a')
         detalles_file = open(join(dirname, '../db/DET_VTA.dat'), 'a')
         for cod_producto in productos_dict:
-            detalles_file.write(str(ultimo_codigo).zfill(5) + ';' + str(cod_producto) + ';' + str(productos_dict[cod_producto]) + '\n')
+            detalles_file.write(str(ultimo_codigo).rjust(5) + ';' + str(cod_producto) + ';' + str(productos_dict[cod_producto]) + '\n')
             productos.modificar(cod_producto, {'cantidad': productos_dict[cod_producto]})
-        encabezados_file.write(str(ultimo_codigo).zfill(5) + ';' + fecha + ';' + str(cod_vendedor) + ';' + 'V' + '\n')
+        encabezados_file.write(str(ultimo_codigo).rjust(5) + ';' + fecha + ';' + str(cod_vendedor) + ';' + 'V' + '\n')
         encabezados_file.close()
         detalles_file.close()
 
