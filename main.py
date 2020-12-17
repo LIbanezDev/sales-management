@@ -5,11 +5,11 @@ from mantenedores import ventas, productos, vendedores
 
 def create_database():
     files_names = ['ENC_VTA', 'DET_VTA', 'PRODUCTOS', 'VENDEDORES']
-    if not path.exists('./db'):
+    if not path.isdir('./db'):
         mkdir('./db/')
     for name in files_names:
         full_name = 'db/' + name + '.dat'
-        if not path.exists(full_name):
+        if not path.isfile(full_name):
             file = open(full_name, 'w')
             file.close()
 
