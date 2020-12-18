@@ -7,10 +7,13 @@ def create_database():
     files_names = ['ENC_VTA', 'DET_VTA', 'PRODUCTOS', 'VENDEDORES']
     if not path.isdir('./db'):
         mkdir('./db/')
-    for name in files_names:
-        full_name = 'db/' + name + '.dat'
+    for file_name in files_names:
+        full_name = 'db/' + file_name + '.dat'
         if not path.isfile(full_name):
             file = open(full_name, 'w')
+            if file_name == 'PRODUCTOS' or file_name == 'VENDEDORES':
+                for i in range(45):
+                    file.write("00000" + " " * ((vendedores.LONGITUD_REGISTRO if file_name == 'VENDEDORES' else productos.LONGITUD_REGISTRO) - 5))
             file.close()
 
 
@@ -48,6 +51,8 @@ while opt != 5:
             vendedores.agregar()
         elif opt_final == 5:
             vendedores.listar()
+        elif opt_final == 3:
+            vendedores.consultar()
     elif opt == 3:
         print('1. Agregar productos')
         print('2. Modificar productos')
@@ -55,6 +60,12 @@ while opt != 5:
         print('4. Eliminar productos')
         print('5. Listar productos')
         opt_final = int(input('Ingrese opcion: '))
+        if opt_final == 1:
+            productos.agregar()
+        elif opt_final == 5:
+            productos.listar()
+        elif opt_final == 3:
+            productos.consultar()
     elif opt == 4:
         print('1. Productos con stock critico')
         print('2. Recaudacion diaria')

@@ -44,7 +44,7 @@ def realizar_venta():
             raise Exception(error)
 
         # Validar vendedor
-        cod_vendedor = int(input("Codigo de vendedor: "))
+        cod_vendedor = input("Codigo de vendedor: ")
         vendedor = vendedores.obtener_uno(cod_vendedor)
         if vendedor is None:
             raise Exception('Vendedor no existe...')
@@ -57,7 +57,7 @@ def realizar_venta():
             if codigo in productos_dict:
                 print("Producto ya ha sido agregado, intente nuevamente")
                 continue  # Reintentando la venta
-            producto = productos.obtener_uno(codigo)
+            producto = productos.compartidos(codigo)
             if producto is None:
                 print('Producto no existe en el registro, intente nuevamente.')
                 continue
