@@ -70,7 +70,6 @@ while opt != 5:
             productos.eliminar()
         elif opt_final == 5:
             productos.listar()
-
     elif opt == 4:
         print('1. Productos con stock critico')
         print('2. Recaudacion diaria')

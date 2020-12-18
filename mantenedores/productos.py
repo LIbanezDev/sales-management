@@ -1,5 +1,4 @@
 from os.path import dirname, join, getsize
-from typing import Dict
 
 from dto.classes import Producto
 from mantenedores.compartidos import encontrar_espacio, obtener_uno
