@@ -1,11 +1,23 @@
 from os.path import dirname, join, getsize
 from typing import Dict
 
+from dto.classes import Producto
 from mantenedores.compartidos import encontrar_espacio, obtener_uno
 
 LONGITUD_REGISTRO = 64
 
 productos_path = join(dirname(__file__), '../db/PRODUCTOS.dat')
+
+
+def restar_stock(codigo: str, cantidad: int):
+    [posicion, registro] = obtener_uno(codigo, 'productos')
+    stock_actual = int(registro[61:64])
+    nuevo_stock = stock_actual - cantidad
+    registro_editado = registro[0:61] + str(nuevo_stock).zfill(3)
+    FILE = open(productos_path, 'r+')
+    FILE.seek(posicion)
+    FILE.write(registro_editado)
+    FILE.close()
 
 
 def agregar():
@@ -14,34 +26,54 @@ def agregar():
     if posicion == -1:
         print('Producto ya ha sido agregado.')
     else:
-        FILE = open(productos_path, 'r+')
         print('Ingrese los datos restantes del producto.')
         nombre = input('Nombre: ')[0:50]
         precio = input('Precio: ')[0:6]
         stock = input('Stock: ')[0:3]
+        FILE = open(productos_path, 'r+')
         FILE.seek(posicion)
         FILE.write(codigo.zfill(5) + nombre.ljust(50) + precio.zfill(6) + stock.zfill(3))
         FILE.close()
 
 
-def modificar(codigo: int, nueva_data: Dict[str, any]):
-    pass
+def modificar():
+    codigo = input('Ingrese codigo de producto a modificar: ')
+    [posicion, registro] = obtener_uno(codigo, 'productos')
+    if registro is None:
+        print('Producto no existe, no se puede modificar.')
+    else:
+        print('Modificando en la posicion', posicion)
+        producto = Producto(registro)
+        print('Nombre:', producto.nombre, '- Precio:', producto.precio, '- Stock:', producto.stock)
+        print('-- Nuevos datos --')
+        nombre = input('Nombre: ')
+        precio = input('Precio: ')
+        stock = input('Stock: ')
+        FILE = open(productos_path, 'r+')
+        FILE.seek(posicion)
+        FILE.write(str(codigo).zfill(5) + nombre.ljust(50) + precio.zfill(6) + stock.zfill(3))
+        FILE.close()
 
 
 def consultar():
     codigo = input('Ingrese codigo de producto: ')
-    producto = obtener_uno(codigo, 'productos')
+    [pos, producto] = obtener_uno(codigo, 'productos')
     if producto is None:
         print('Producto no existe.')
     else:
         nombre = producto[5:55].strip()
-        precio = producto[55:61].strip()
-        stock = producto[61:64].strip()
-        print('Nombre: ' + nombre + ' - Precio:', int(precio), ' - Stock:', int(stock))
+        precio = int(producto[55:61])
+        stock = int(producto[61:64])
+        print('Nombre: ' + nombre + ' - Precio:', precio, ' - Stock:', stock)
 
 
 def eliminar():
-    pass
+    codigo = input('Ingrese codigo de producto: ')
+    [pos, producto] = obtener_uno(codigo, 'productos')
+    if producto is None:
+        print('Producto no existe.')
+    else:
+        print('Eliminando producto.')
 
 
 def listar():

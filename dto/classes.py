@@ -20,8 +20,8 @@ class EncabezadoVenta:
 
 
 class Producto:
-    def __init__(self, codigo: int, nombre: str, precio: int, stock: int):
-        self.codigo = codigo
-        self.nombre = nombre
-        self.precio = precio
-        self.stock = stock
+    def __init__(self, registro: str):
+        self.codigo = int(registro[0:5])
+        self.nombre = registro[5:55].strip()
+        self.precio = int(registro[55:61])
+        self.stock = int(registro[61:64])
