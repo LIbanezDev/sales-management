@@ -10,7 +10,7 @@ vendedores_path = join(dirname(__file__), '../db/VENDEDORES.dat')
 
 def agregar():
     codigo = input('Ingrese codigo de vendedor: ')
-    posicion = encontrar_espacio(codigo, 'vendedores', vendedores_path)
+    posicion = encontrar_espacio(codigo, 'vendedores')
     if posicion == -1:
         print('Vendedor ya ha sido agregado.')
     else:
@@ -27,7 +27,7 @@ def modificar(codigo: int, nueva_data: Dict[str, any]):
 
 def consultar():
     codigo = input('Ingrese codigo de producto a buscar: ')
-    vendedor = obtener_uno(codigo, 'vendedores', vendedores_path)
+    vendedor = obtener_uno(codigo, 'vendedores')
     if vendedor is None:
         print('Vendedor no existe.')
     else:

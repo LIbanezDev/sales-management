@@ -10,7 +10,7 @@ productos_path = join(dirname(__file__), '../db/PRODUCTOS.dat')
 
 def agregar():
     codigo = input('Ingrese codigo de producto: ')
-    posicion = encontrar_espacio(codigo, 'productos', productos_path)
+    posicion = encontrar_espacio(codigo, 'productos')
     if posicion == -1:
         print('Producto ya ha sido agregado.')
     else:
@@ -30,7 +30,7 @@ def modificar(codigo: int, nueva_data: Dict[str, any]):
 
 def consultar():
     codigo = input('Ingrese codigo de producto: ')
-    producto = obtener_uno(codigo, 'productos', productos_path)
+    producto = obtener_uno(codigo, 'productos')
     if producto is None:
         print('Producto no existe.')
     else:
