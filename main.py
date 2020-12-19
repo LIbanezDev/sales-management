@@ -1,6 +1,6 @@
 import os
 
-from mantenedores import ventas, productos, vendedores
+from mantenedores import ventas, productos, vendedores, informes
 
 
 def create_database():
@@ -83,5 +83,13 @@ while opt != 5:
         print('2. Recaudacion diaria')
         print('3. Ventas por vendedor')
         opt_final = int(input('Ingrese opcion: '))
+        if opt_final == 1:
+            informes.listar_stock_critico()
+        elif opt_final == 2:
+            informes.listar_reacudacion_diaria()
+        elif opt_final == 3:
+            informes.listar_ventas_por_vendedor()
+        else:
+            print('Opcion no reconocida')
     elif opt != 5:
-        print('Opcion no valida.')
+        print('Opcion no reconocida.')

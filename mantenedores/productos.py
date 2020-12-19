@@ -90,12 +90,9 @@ def listar():
         registro_actual = file.read(LONGITUD_REGISTRO)
         codigo = registro_actual[0:5].strip()
         if codigo != '00000':  # Registro no vacio
-            nombre = registro_actual[5:50].strip()
-            precio = registro_actual[50:56].strip()
-            stock = registro_actual[56:59].strip()
+            producto = dto.Producto(registro_actual)
             archivo_vacio = False
-            print('Producto numero ' + str(int(file.tell() / LONGITUD_REGISTRO)) +
-                  ' = Codigo: ' + codigo + ' - Nombre: ' + nombre + ' - Precio: ' + precio + 'Stock: ' + stock)
+            print('Codigo:', producto.codigo, '- Nombre:', producto.nombre, '- Precio:', producto.precio, '- Stock: ', producto.stock)
     if archivo_vacio:
         print('El archivo no tiene productos aun. Enter para continuar...')
     else:
