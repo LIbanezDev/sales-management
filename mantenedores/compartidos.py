@@ -42,9 +42,10 @@ def encontrar_espacio(codigo: str, tipo: str) -> int or None:
         return posicion
 
 
-def obtener_uno(codigo: str, tipo: str) -> [int, str] or None:
+def obtener_uno(codigo: str, tipo: str) -> [int, str or None]:
     """
-    Funcion para buscar un registro tanto en el archivo vendedores como en productos.
+    Retorna la posicion y el contenido del registro tanto en el archivo vendedores como en productos.
+    [int: posicion, str: registro] or None
     """
     LONGITUD_REGISTRO = 64 if tipo == 'productos' else 35
     PATH = productos_path if tipo == 'productos' else vendedores_path
@@ -52,10 +53,10 @@ def obtener_uno(codigo: str, tipo: str) -> [int, str] or None:
     posicion = obtener_hashing(codigo, tipo)
     FILE.seek(posicion)
     registro = FILE.read(LONGITUD_REGISTRO)
-    if int(codigo) == int(registro[0:5]):
+    if int(codigo) == int(registro[0:5]):  # Revisa si el registro se encuentra ya registrado en el area de datos.
         FILE.close()
         return [posicion, registro]
-    else:
+    else:  # Buscando en el area de overflow
         posicion = 45 * LONGITUD_REGISTRO
         FILE.seek(posicion)
         registro = FILE.read(LONGITUD_REGISTRO)
@@ -64,6 +65,6 @@ def obtener_uno(codigo: str, tipo: str) -> [int, str] or None:
         posicion = FILE.tell() - LONGITUD_REGISTRO
         FILE.close()
         if registro == "":
-            return None
+            return [-1, None]
         else:
             return [posicion, registro]

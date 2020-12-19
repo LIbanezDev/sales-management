@@ -1,7 +1,8 @@
 from os.path import dirname, join, getsize
 
-from dto.classes import Producto
-from mantenedores.compartidos import encontrar_espacio, obtener_uno
+import dto
+import mantenedores.compartidos
+import mantenedores.ventas
 
 LONGITUD_REGISTRO = 64
 
@@ -9,7 +10,7 @@ productos_path = join(dirname(__file__), '../db/PRODUCTOS.dat')
 
 
 def restar_stock(codigo: str, cantidad: int):
-    [posicion, registro] = obtener_uno(codigo, 'productos')
+    [posicion, registro] = mantenedores.compartidos.obtener_uno(codigo, 'productos')
     stock_actual = int(registro[61:64])
     nuevo_stock = stock_actual - cantidad
     registro_editado = registro[0:61] + str(nuevo_stock).zfill(3)
@@ -21,7 +22,7 @@ def restar_stock(codigo: str, cantidad: int):
 
 def agregar():
     codigo = input('Ingrese codigo de producto: ')
-    posicion = encontrar_espacio(codigo, 'productos')
+    posicion = mantenedores.compartidos.encontrar_espacio(codigo, 'productos')
     if posicion == -1:
         print('Producto ya ha sido agregado.')
     else:
@@ -37,12 +38,12 @@ def agregar():
 
 def modificar():
     codigo = input('Ingrese codigo de producto a modificar: ')
-    [posicion, registro] = obtener_uno(codigo, 'productos')
+    [posicion, registro] = mantenedores.compartidos.obtener_uno(codigo, 'productos')
     if registro is None:
         print('Producto no existe, no se puede modificar.')
     else:
         print('Modificando en la posicion', posicion)
-        producto = Producto(registro)
+        producto = dto.Producto(registro)
         print('Nombre:', producto.nombre, '- Precio:', producto.precio, '- Stock:', producto.stock)
         print('-- Nuevos datos --')
         nombre = input('Nombre: ')
@@ -56,23 +57,30 @@ def modificar():
 
 def consultar():
     codigo = input('Ingrese codigo de producto: ')
-    [pos, producto] = obtener_uno(codigo, 'productos')
-    if producto is None:
+    registro = mantenedores.compartidos.obtener_uno(codigo, 'productos')[1]  # Retorna [posicion, registro] => Obteniendo registro
+    if registro is None:
         print('Producto no existe.')
     else:
-        nombre = producto[5:55].strip()
-        precio = int(producto[55:61])
-        stock = int(producto[61:64])
-        print('Nombre: ' + nombre + ' - Precio:', precio, ' - Stock:', stock)
+        producto = dto.Producto(registro)
+        print('Nombre:', producto.nombre, '- Precio:', producto.precio, '- Stock:', producto.stock)
 
 
 def eliminar():
     codigo = input('Ingrese codigo de producto: ')
-    [pos, producto] = obtener_uno(codigo, 'productos')
-    if producto is None:
+    [posicion, registro] = mantenedores.compartidos.obtener_uno(codigo, 'productos')
+    if registro is None:
         print('Producto no existe.')
     else:
-        print('Eliminando producto.')
+        producto = dto.Producto(registro)
+        print('Nombre:', producto.nombre, '- Precio:', producto.precio, ' - Stock:', producto.stock)
+        if mantenedores.ventas.existe_producto_en_ventas(codigo):
+            print('El producto ha sido vendido alguna vez, asi que no se puede eliminar.')
+        else:
+            FILE = open(productos_path, 'r+')
+            FILE.seek(posicion)
+            FILE.write('00000' + " " * (LONGITUD_REGISTRO - 5))
+            FILE.close()
+            print(producto.nombre, 'eliminado satisfactoriamente.')
 
 
 def listar():

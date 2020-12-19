@@ -2,8 +2,12 @@ from datetime import date
 from os.path import dirname, join
 from typing import Dict
 
-from dto.classes import EncabezadoVenta, Producto
-from mantenedores import productos, vendedores, compartidos
+import dto
+import mantenedores
+from .productos import restar_stock
+
+ENC_VTA_PATH = join(dirname(__file__), '../db/ENC_VTA.dat')
+DET_VTA_PATH = join(dirname(__file__), '../db/DET_VTA.dat')
 
 
 def validar_fecha(fecha: str) -> [bool, str or None]:
@@ -17,16 +21,39 @@ def validar_fecha(fecha: str) -> [bool, str or None]:
         return [False, error]
 
 
-def obtener_ultimo_enc_vta() -> EncabezadoVenta or None:
-    names_file = open(join(dirname(__file__), '../db/ENC_VTA.dat'), 'r')
-    last = ""
-    for line in names_file:
-        last = line
-    names_file.close()
-    if last == "":
+def existe_vendedor_en_ventas(codigo_vendedor: str) -> bool:
+    FILE = open(ENC_VTA_PATH)
+    existe = False
+    registro = FILE.readline()
+    while registro != '' and not existe:
+        enc_vta = dto.EncabezadoVenta(registro)
+        if enc_vta.cod_vendedor == int(codigo_vendedor):
+            existe = True
+        registro = FILE.read()
+    return existe
+
+
+def existe_producto_en_ventas(codigo_producto: str) -> bool:
+    FILE = open(DET_VTA_PATH)
+    existe = False
+    registro = FILE.readline()
+    while registro != '' and not existe:
+        enc_vta = dto.DetalleVenta(registro)
+        if enc_vta.cod_producto == int(codigo_producto):
+            existe = True
+        registro = FILE.read()
+    return existe
+
+
+def obtener_ultimo_enc_vta() -> dto.EncabezadoVenta or None:
+    ENC_VTA_FILE = open(ENC_VTA_PATH)
+    ultimo = ""
+    for linea in ENC_VTA_FILE:
+        ultimo = linea
+    ENC_VTA_FILE.close()
+    if ultimo == "":
         return None
-    numero, fecha, vendedor, estado = last.split(';')  # 00001;18/01/2013;12345;V
-    return EncabezadoVenta(int(numero), fecha, int(vendedor), estado)
+    return dto.EncabezadoVenta(ultimo)  # 00001;18/01/2013;12345;V
 
 
 def realizar_venta():
@@ -43,8 +70,8 @@ def realizar_venta():
 
         # Validar vendedor
         cod_vendedor = input("Codigo de vendedor: ")
-        vendedor = compartidos.obtener_uno(cod_vendedor, 'vendedores')
-        if vendedor is None:
+        registro_vendedor = mantenedores.compartidos.obtener_uno(cod_vendedor, 'vendedores')[1]
+        if registro_vendedor is None:
             raise Exception('Vendedor no existe...')
 
         productos_dict: Dict[int, int] = {}  # {codigo: cantidad}
@@ -57,12 +84,12 @@ def realizar_venta():
                 print("Producto ya ha sido agregado, intente nuevamente")
                 continue  # Reintentando la venta
 
-            [pos, registro] = compartidos.obtener_uno(codigo, 'productos')
-            if registro is None:
+            registro_producto = mantenedores.compartidos.obtener_uno(codigo, 'productos')[1]
+            if registro_producto is None:
                 print('Producto no existe en el registro, intente nuevamente.')
                 continue
 
-            producto = Producto(registro)
+            producto = dto.Producto(registro_producto)
             print("Precio unitario de", producto.nombre, ":", producto.precio)
             cantidad_a_comprar = int(input("Cantidad a comprar: "))
             if producto.stock < cantidad_a_comprar:
@@ -70,15 +97,15 @@ def realizar_venta():
                 continue
             productos_dict[int(producto.codigo)] = cantidad_a_comprar
 
-        # Pasó todas las validaciones
-        encabezados_file = open(join(dirname(__file__), '../db/ENC_VTA.dat'), 'a')
-        detalles_file = open(join(dirname(__file__), '../db/DET_VTA.dat'), 'a')
+        # Pasó todas las validaciones, registrando venta en
+        ENC_VTA_FILE = open(ENC_VTA_PATH, 'a')
+        DET_VTA_FILE = open(DET_VTA_PATH, 'a')
         for cod_producto in productos_dict:
-            detalles_file.write(str(ultimo_codigo).rjust(5) + ';' + str(cod_producto) + ';' + str(productos_dict[cod_producto]) + '\n')
-            productos.restar_stock(str(cod_producto), productos_dict[cod_producto])
-        encabezados_file.write(str(ultimo_codigo).rjust(5) + ';' + fecha + ';' + str(cod_vendedor) + ';' + 'V' + '\n')
-        encabezados_file.close()
-        detalles_file.close()
+            DET_VTA_FILE.write(str(ultimo_codigo).rjust(5) + ';' + str(cod_producto) + ';' + str(productos_dict[cod_producto]) + '\n')
+            restar_stock(str(cod_producto), productos_dict[cod_producto])
+        ENC_VTA_FILE.write(str(ultimo_codigo).rjust(5) + ';' + fecha + ';' + str(cod_vendedor) + ';' + 'V' + '\n')
+        ENC_VTA_FILE.close()
+        DET_VTA_FILE.close()
 
     except Exception as e:
         print(e)

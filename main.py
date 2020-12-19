@@ -1,15 +1,15 @@
-from os import path, mkdir
+import os
 
 from mantenedores import ventas, productos, vendedores
 
 
 def create_database():
     files_names = ['ENC_VTA', 'DET_VTA', 'PRODUCTOS', 'VENDEDORES']
-    if not path.isdir('./db'):
-        mkdir('./db/')
+    if not os.path.isdir('./db'):
+        os.mkdir('./db/')
     for file_name in files_names:
         full_name = 'db/' + file_name + '.dat'
-        if not path.isfile(full_name):
+        if not os.path.isfile(full_name):
             file = open(full_name, 'w')
             if file_name == 'PRODUCTOS' or file_name == 'VENDEDORES':
                 for i in range(45):
@@ -49,10 +49,16 @@ while opt != 5:
         opt_final = int(input('Ingrese opcion: '))
         if opt_final == 1:
             vendedores.agregar()
-        elif opt_final == 5:
-            vendedores.listar()
+        elif opt_final == 2:
+            vendedores.modificar()
         elif opt_final == 3:
             vendedores.consultar()
+        elif opt_final == 4:
+            vendedores.eliminar()
+        elif opt_final == 5:
+            vendedores.listar()
+        else:
+            print('Opcion no reconocida.')
     elif opt == 3:
         print('1. Agregar productos')
         print('2. Modificar productos')
@@ -70,6 +76,8 @@ while opt != 5:
             productos.eliminar()
         elif opt_final == 5:
             productos.listar()
+        else:
+            print('Opcion no reconocida.')
     elif opt == 4:
         print('1. Productos con stock critico')
         print('2. Recaudacion diaria')
