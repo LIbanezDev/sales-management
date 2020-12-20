@@ -1,7 +1,9 @@
 from typing import Dict
 
 import dto
+from .compartidos import obtener_uno
 from .productos import LONGITUD_REGISTRO as LARGO_PRODUCTO, productos_path
+from .ventas import ENC_VTA_PATH, obtener_recaudacion_detalle_venta
 
 
 def listar_stock_critico():
@@ -16,18 +18,37 @@ def listar_stock_critico():
                 print(producto.nombre, 'con precio', producto.precio, 'tiene', producto.stock, 'unidades restantes.')
         registro = FILE.read(LARGO_PRODUCTO)
     if not hay_stock_critico:
-        print('No hay stock critico.')
+        input('No hay productos en stock critico. \nPresione enter para continuar...')
 
 
 def listar_reacudacion_diaria():
-    recaudacion_diaria: Dict[str, int] = {'18/01/2001': 23, '18/01/2002': 30}  # {fecha: recaudacion_total}
+    recaudacion_diaria: Dict[str, int] = {}  # {fecha: recaudacion_total}
+    ENC_VTA_FILE = open(ENC_VTA_PATH)
+    for linea_enc in ENC_VTA_FILE:
+        encabezado = dto.EncabezadoVenta(linea_enc)
+        if encabezado.fecha not in recaudacion_diaria:  # Si la fecha aun no existe, inicializa su recaudacion del dia en 0
+            recaudacion_diaria[encabezado.fecha] = 0
+        recaudacion_diaria[encabezado.fecha] += obtener_recaudacion_detalle_venta(encabezado)
+    ENC_VTA_FILE.close()
+    if not recaudacion_diaria:
+        input('No hay ventas aun. \nPresione enter para continuar...')
     for fecha in recaudacion_diaria:
         print(fecha, ':', recaudacion_diaria[fecha], '$')
-    pass
 
 
 def listar_ventas_por_vendedor():
-    ventas_por_vendedor: Dict[str, int] = {'Reiner Braun': 30, 'Annie Leonhart': 34}  # {nombre_vendedor: total_recaudado}
-    for vendedor in ventas_por_vendedor:
-        print(vendedor, ':', ventas_por_vendedor[vendedor])
-    pass
+    ventas_por_vendedor: Dict[str, int] = {}  # {nombre_vendedor: total_recaudado}
+    ENC_VTA_FILE = open(ENC_VTA_PATH)
+    for linea_enc in ENC_VTA_FILE:
+        encabezado = dto.EncabezadoVenta(linea_enc)
+        registro_vendedor = obtener_uno(str(encabezado.cod_vendedor), 'vendedores')[1]  # Retorna [posicion, registro] => Obteniendo solo registro
+        vendedor = dto.Vendedor(registro_vendedor)
+        if vendedor.nombre not in ventas_por_vendedor:  # Si el vendedor aun no existe, inicializa su recaudacion en 0
+            ventas_por_vendedor[vendedor.nombre] = 0
+        ventas_por_vendedor[vendedor.nombre] += obtener_recaudacion_detalle_venta(encabezado)
+    ENC_VTA_FILE.close()
+    if not ventas_por_vendedor:
+        input('No hay vendedores aun. \nPresione enter para continuar...')
+    else:
+        for vendedor in ventas_por_vendedor:
+            print(vendedor, ':', ventas_por_vendedor[vendedor])

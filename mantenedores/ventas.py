@@ -10,7 +10,7 @@ ENC_VTA_PATH = join(dirname(__file__), '../db/ENC_VTA.dat')
 DET_VTA_PATH = join(dirname(__file__), '../db/DET_VTA.dat')
 
 
-def validar_fecha(fecha: str) -> [bool, str or None]:
+def validar_fecha(fecha: str) -> [bool, str or None]:  # => [es_valida, error or None]
     try:
         day, month, year = fecha.strip().split('/')
         date(int(year), int(month), int(day))  # Si fecha no es valida, date() lanza un ValueError
@@ -22,6 +22,9 @@ def validar_fecha(fecha: str) -> [bool, str or None]:
 
 
 def existe_vendedor_en_ventas(codigo_vendedor: str) -> bool:
+    """
+    Helper para verificar si un vendedor realizado ventas.
+    """
     FILE = open(ENC_VTA_PATH)
     existe = False
     registro = FILE.readline()
@@ -34,6 +37,9 @@ def existe_vendedor_en_ventas(codigo_vendedor: str) -> bool:
 
 
 def existe_producto_en_ventas(codigo_producto: str) -> bool:
+    """
+    Helper para verificar si un producto ha sido vendido.
+    """
     FILE = open(DET_VTA_PATH)
     existe = False
     registro = FILE.readline()
@@ -53,7 +59,25 @@ def obtener_ultimo_enc_vta() -> dto.EncabezadoVenta or None:
     ENC_VTA_FILE.close()
     if ultimo == "":
         return None
-    return dto.EncabezadoVenta(ultimo)  # 00001;18/01/2013;12345;V
+    return dto.EncabezadoVenta(ultimo)  # 1;18/01/2013;12345;V
+
+
+# Helper
+def obtener_recaudacion_detalle_venta(encabezado: dto.EncabezadoVenta) -> int:
+    """
+    Retorna el total de una venta especifica del estilo num_boleta:cod_producto:cantidad
+    """
+    DET_VTA_FILE = open(DET_VTA_PATH)
+    total = 0
+    for linea_det in DET_VTA_FILE:
+        detalle = dto.DetalleVenta(linea_det)
+        if encabezado.num_boleta == detalle.num_boleta:
+            registro_producto = mantenedores.compartidos.obtener_uno(str(detalle.cod_producto), 'productos')[
+                1]  # Retorna [posicion, registro] => Obteniendo solo registro
+            producto = dto.Producto(registro_producto)
+            total += producto.precio * detalle.cantidad
+    DET_VTA_FILE.close()
+    return total
 
 
 def realizar_venta():
@@ -62,8 +86,7 @@ def realizar_venta():
         ultimo_codigo = 0 if ultimo_enc is None else ultimo_enc.num_boleta + 1
 
         # Validar fecha
-        # fecha = input("Fecha de venta: ")
-        fecha = "18/01/2011"
+        fecha = input("Fecha de venta (dd/mm/yyyy): ")
         [valida, error] = validar_fecha(fecha)
         if not valida:
             raise Exception(error)

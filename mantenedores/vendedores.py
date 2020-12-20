@@ -77,7 +77,7 @@ def listar():
             archivo_vacio = False
             print('Codigo:', int(codigo), '- Nombre:', nombre)
     if archivo_vacio:
-        print('El archivo no tiene vendedores aun. Enter para continuar...')
+        input('El archivo no tiene vendedores aun.\nEnter para continuar...')
     else:
-        print('Fin del listado. Enter para continuar...')
+        input('Fin del listado.\nEnter para continuar...')
     file.close()

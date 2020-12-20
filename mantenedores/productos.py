@@ -94,7 +94,7 @@ def listar():
             archivo_vacio = False
             print('Codigo:', producto.codigo, '- Nombre:', producto.nombre, '- Precio:', producto.precio, '- Stock: ', producto.stock)
     if archivo_vacio:
-        print('El archivo no tiene productos aun. Enter para continuar...')
+        input('El archivo no tiene productos aun.\nEnter para continuar...')
     else:
-        print('Fin del listado. Enter para continuar...')
+        input('Fin del listado.\nEnter para continuar...')
     file.close()
