@@ -18,7 +18,8 @@ def listar_stock_critico():
                 print(producto.nombre, 'con precio', producto.precio, 'tiene', producto.stock, 'unidades restantes.')
         registro = FILE.read(LARGO_PRODUCTO)
     if not hay_stock_critico:
-        input('No hay productos en stock critico. \nPresione enter para continuar...')
+        print('No hay productos en stock critico.')
+    input('Presione enter para continuar...')
 
 
 def listar_reacudacion_diaria():
@@ -30,10 +31,11 @@ def listar_reacudacion_diaria():
             recaudacion_diaria[encabezado.fecha] = 0
         recaudacion_diaria[encabezado.fecha] += obtener_recaudacion_detalle_venta(encabezado)
     ENC_VTA_FILE.close()
-    if not recaudacion_diaria:
-        input('No hay ventas aun. \nPresione enter para continuar...')
     for fecha in recaudacion_diaria:
         print(fecha, ':', recaudacion_diaria[fecha], '$')
+    else:
+        print('No hay ventas aun.')
+    input('Presione enter para continuar...')
 
 
 def listar_ventas_por_vendedor():
@@ -47,8 +49,8 @@ def listar_ventas_por_vendedor():
             ventas_por_vendedor[vendedor.nombre] = 0
         ventas_por_vendedor[vendedor.nombre] += obtener_recaudacion_detalle_venta(encabezado)
     ENC_VTA_FILE.close()
-    if not ventas_por_vendedor:
-        input('No hay vendedores aun. \nPresione enter para continuar...')
+    for vendedor in ventas_por_vendedor:
+        print(vendedor, ':', ventas_por_vendedor[vendedor])
     else:
-        for vendedor in ventas_por_vendedor:
-            print(vendedor, ':', ventas_por_vendedor[vendedor])
+        print('No hay vendedores aun.')
+    input('Presione enter para continuar...')
