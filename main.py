@@ -1,6 +1,6 @@
 import os
 
-from mantenedores import ventas, productos, vendedores, informes
+from app import ventas, productos, vendedores, informes
 
 
 def create_database():

@@ -1,10 +1,10 @@
+import os
 from datetime import date
 from os.path import dirname, join
 from typing import Dict
-import os
+
+import app
 import dto
-import mantenedores
-from .productos import modificar_stock
 
 ENC_VTA_PATH = join(dirname(__file__), '../db/ENC_VTA.dat')
 DET_VTA_PATH = join(dirname(__file__), '../db/DET_VTA.dat')
@@ -75,7 +75,7 @@ def obtener_encabezado(num_boleta: int):
     return None
 
 
-def obtener_recaudacion_detalle_venta(encabezado: dto.EncabezadoVenta) -> int:
+def obtener_total_venta(encabezado: dto.EncabezadoVenta) -> int:
     """
     Retorna el total de una venta especifica del estilo num_boleta:cod_producto:cantidad
     """
@@ -84,7 +84,7 @@ def obtener_recaudacion_detalle_venta(encabezado: dto.EncabezadoVenta) -> int:
     for linea_det in DET_VTA_FILE:
         detalle = dto.DetalleVenta(linea_det)
         if encabezado.num_boleta == detalle.num_boleta:
-            registro_producto = mantenedores.compartidos.obtener_uno(str(detalle.cod_producto), 'productos')[
+            registro_producto = app.compartidos.obtener_uno(str(detalle.cod_producto), 'productos')[
                 1]  # Retorna [posicion, registro] => Obteniendo solo registro
             producto = dto.Producto(registro_producto)
             total += producto.precio * detalle.cantidad
@@ -105,7 +105,7 @@ def realizar_venta():
 
         # Validar vendedor
         cod_vendedor = input("Codigo de vendedor: ")
-        registro_vendedor = mantenedores.compartidos.obtener_uno(cod_vendedor, 'vendedores')[1]
+        registro_vendedor = app.compartidos.obtener_uno(cod_vendedor, 'vendedores')[1]
         if registro_vendedor is None:
             raise Exception('Vendedor no existe...')
 
@@ -119,7 +119,7 @@ def realizar_venta():
                 print("Producto ya ha sido agregado, intente nuevamente")
                 continue  # Reintentando la venta
 
-            registro_producto = mantenedores.compartidos.obtener_uno(codigo, 'productos')[1]
+            registro_producto = app.compartidos.obtener_uno(codigo, 'productos')[1]
             if registro_producto is None:
                 print('Producto no existe en el registro, intente nuevamente.')
                 continue
@@ -137,7 +137,7 @@ def realizar_venta():
         DET_VTA_FILE = open(DET_VTA_PATH, 'a')
         for cod_producto in productos_dict:
             DET_VTA_FILE.write(str(ultimo_codigo).rjust(5) + ';' + str(cod_producto) + ';' + str(productos_dict[cod_producto]) + '\n')
-            modificar_stock(str(cod_producto), productos_dict[cod_producto])
+            app.productos.modificar_stock(str(cod_producto), productos_dict[cod_producto])
         ENC_VTA_FILE.write(str(ultimo_codigo).rjust(5) + ';' + fecha + ';' + str(cod_vendedor) + ';' + 'V' + '\n')
         ENC_VTA_FILE.close()
         DET_VTA_FILE.close()
@@ -154,7 +154,7 @@ def consultar_venta():
     else:
         # Listando datos de la boleta y del vendedor.
         print('Numero de boleta:', encabezado.num_boleta, '- Fecha:', encabezado.fecha)
-        vendedor = dto.Vendedor(mantenedores.compartidos.obtener_uno(str(encabezado.cod_vendedor), 'vendedores')[1])
+        vendedor = dto.Vendedor(app.compartidos.obtener_uno(str(encabezado.cod_vendedor), 'vendedores')[1])
         print('Codigo Vendedor :', vendedor.codigo, '- Nombre:', vendedor.nombre)
         # -----------
 
@@ -164,7 +164,7 @@ def consultar_venta():
         for linea_detalle in DET_FILE:
             detalle = dto.DetalleVenta(linea_detalle)
             if detalle.num_boleta == num_boleta:
-                producto = dto.Producto(mantenedores.compartidos.obtener_uno(str(detalle.cod_producto), 'productos')[1])
+                producto = dto.Producto(app.compartidos.obtener_uno(str(detalle.cod_producto), 'productos')[1])
                 total_producto_actual = producto.precio * detalle.cantidad
                 print('Codigo Producto:', producto.codigo, '- Nombre:', producto.nombre, '- Precio:', producto.precio, '- Cantidad Vendida:', detalle.cantidad,
                       '- Total Venta:', total_producto_actual)
@@ -194,7 +194,7 @@ def anular_venta():
                 for linea_detalle in DET_FILE:
                     detalle = dto.DetalleVenta(linea_detalle)
                     if detalle.num_boleta == encabezado.num_boleta:
-                        mantenedores.productos.modificar_stock(str(detalle.cod_producto), detalle.cantidad, '+')
+                        app.productos.modificar_stock(str(detalle.cod_producto), detalle.cantidad, '+')
                 DET_FILE.close()
                 ENC_FILE = open(ENC_VTA_PATH)
                 AUX_ENC_FILE = open('./db/ENC_VTA.tmp', 'w')

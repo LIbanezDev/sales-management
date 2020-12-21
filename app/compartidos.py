@@ -1,7 +1,6 @@
-from os.path import join, dirname
+# Metodos que seran compartidos entre los diferentes modulos de la aplicacion.
 
-productos_path = join(dirname(__file__), '../db/PRODUCTOS.dat')
-vendedores_path = join(dirname(__file__), '../db/VENDEDORES.dat')
+import app
 
 
 def obtener_hashing(codigo: str, tipo: str) -> int:
@@ -16,7 +15,7 @@ def encontrar_espacio(codigo: str, tipo: str) -> int or None:
     Busca la posicion para ubicar un proximo registro.
     """
     LONGITUD_REGISTRO = 64 if tipo == 'productos' else 35
-    PATH = productos_path if tipo == 'productos' else vendedores_path
+    PATH = app.productos.PRODUCTOS_PATH if tipo == 'productos' else app.vendedores.VENDEDORES_PATH
     FILE = open(PATH)
     posicion = obtener_hashing(codigo, tipo)
     FILE.seek(posicion)
@@ -44,7 +43,7 @@ def obtener_uno(codigo: str, tipo: str) -> [int, str or None]:
     [posicion:int -> -1 si no existe, registro:str or None si no existe]
     """
     LONGITUD_REGISTRO = 64 if tipo == 'productos' else 35
-    PATH = productos_path if tipo == 'productos' else vendedores_path
+    PATH = app.productos.PRODUCTOS_PATH if tipo == 'productos' else app.vendedores.VENDEDORES_PATH
     FILE = open(PATH)
     posicion = obtener_hashing(codigo, tipo)
     FILE.seek(posicion)

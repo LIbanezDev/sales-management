@@ -1,9 +1,6 @@
 """
  Data Transfer Objects
- Estas clases tienen el objetivo de facilitar el manejo de los datos contenidos en los archivos,
- en lugar de manejar un substring del registro se pasa completo el registro al constructor de la clase y este se encarga
- de mapear cada substring a un atributo del objeto, por ejemplo codigo en el registro es registro[0:5], pero para evitar este manejo el constructor lo convierte
- iguala a un atributo de objeto, pasando a ser Instancia.codigo
+ Mapean cada substring de un registro a un atributo de clase para facilitar su manejo y prevenir errores.
 """
 
 

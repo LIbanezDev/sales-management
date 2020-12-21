@@ -1,20 +1,19 @@
-from os.path import dirname, join, getsize
+import os.path
 
+import app
 import dto
-import mantenedores.compartidos
-import mantenedores.ventas
 
 LONGITUD_REGISTRO = 64
 
-productos_path = join(dirname(__file__), '../db/PRODUCTOS.dat')
+PRODUCTOS_PATH = os.path.join(os.path.dirname(__file__), '../db/PRODUCTOS.dat')
 
 
 def modificar_stock(codigo: str, cantidad: int, operacion: str = '-'):
-    [posicion, registro] = mantenedores.compartidos.obtener_uno(codigo, 'productos')
+    [posicion, registro] = app.compartidos.obtener_uno(codigo, 'productos')
     stock_actual = int(registro[61:64])
     nuevo_stock = stock_actual - cantidad if operacion == '-' else stock_actual + cantidad
     registro_editado = registro[0:61] + str(nuevo_stock).zfill(3)
-    FILE = open(productos_path, 'r+')
+    FILE = open(PRODUCTOS_PATH, 'r+')
     FILE.seek(posicion)
     FILE.write(registro_editado)
     FILE.close()
@@ -22,7 +21,7 @@ def modificar_stock(codigo: str, cantidad: int, operacion: str = '-'):
 
 def agregar():
     codigo = input('Ingrese codigo de producto: ')
-    posicion = mantenedores.compartidos.encontrar_espacio(codigo, 'productos')
+    posicion = app.compartidos.encontrar_espacio(codigo, 'productos')
     if posicion == -1:
         print('Producto ya ha sido agregado.')
     else:
@@ -30,7 +29,7 @@ def agregar():
         nombre = input('Nombre: ')[0:50]
         precio = input('Precio: ')[0:6]
         stock = input('Stock: ')[0:3]
-        FILE = open(productos_path, 'r+')
+        FILE = open(PRODUCTOS_PATH, 'r+')
         FILE.seek(posicion)
         FILE.write(codigo.zfill(5) + nombre.ljust(50) + precio.zfill(6) + stock.zfill(3))
         FILE.close()
@@ -38,7 +37,7 @@ def agregar():
 
 def modificar():
     codigo = input('Ingrese codigo de producto a modificar: ')
-    [posicion, registro] = mantenedores.compartidos.obtener_uno(codigo, 'productos')
+    [posicion, registro] = app.compartidos.obtener_uno(codigo, 'productos')
     if registro is None:
         print('Producto no existe, no se puede modificar.')
     else:
@@ -49,7 +48,7 @@ def modificar():
         nombre = input('Nombre: ')
         precio = input('Precio: ')
         stock = input('Stock: ')
-        FILE = open(productos_path, 'r+')
+        FILE = open(PRODUCTOS_PATH, 'r+')
         FILE.seek(posicion)
         FILE.write(str(codigo).zfill(5) + nombre.ljust(50) + precio.zfill(6) + stock.zfill(3))
         FILE.close()
@@ -57,7 +56,7 @@ def modificar():
 
 def consultar():
     codigo = input('Ingrese codigo de producto: ')
-    registro = mantenedores.compartidos.obtener_uno(codigo, 'productos')[1]  # Retorna [posicion, registro] => Obteniendo registro
+    registro = app.compartidos.obtener_uno(codigo, 'productos')[1]  # Retorna [posicion, registro] => Obteniendo registro
     if registro is None:
         print('Producto no existe.')
     else:
@@ -67,16 +66,16 @@ def consultar():
 
 def eliminar():
     codigo = input('Ingrese codigo de producto: ')
-    [posicion, registro] = mantenedores.compartidos.obtener_uno(codigo, 'productos')
+    [posicion, registro] = app.compartidos.obtener_uno(codigo, 'productos')
     if registro is None:
         print('Producto no existe.')
     else:
         producto = dto.Producto(registro)
         print('Nombre:', producto.nombre, '- Precio:', producto.precio, ' - Stock:', producto.stock)
-        if mantenedores.ventas.existe_producto_en_ventas(codigo):
+        if app.ventas.existe_producto_en_ventas(codigo):
             print('El producto ha sido vendido alguna vez, asi que no se puede eliminar.')
         else:
-            FILE = open(productos_path, 'r+')
+            FILE = open(PRODUCTOS_PATH, 'r+')
             FILE.seek(posicion)
             FILE.write('00000' + " " * (LONGITUD_REGISTRO - 5))
             FILE.close()
@@ -84,9 +83,9 @@ def eliminar():
 
 
 def listar():
-    file = open(productos_path, 'r')
+    file = open(PRODUCTOS_PATH, 'r')
     archivo_vacio = True
-    while file.tell() < getsize(productos_path):
+    while file.tell() < os.path.getsize(PRODUCTOS_PATH):
         registro_actual = file.read(LONGITUD_REGISTRO)
         codigo = registro_actual[0:5].strip()
         if codigo != '00000':  # Registro no vacio
