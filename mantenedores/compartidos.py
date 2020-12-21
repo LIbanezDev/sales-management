@@ -5,9 +5,6 @@ vendedores_path = join(dirname(__file__), '../db/VENDEDORES.dat')
 
 
 def obtener_hashing(codigo: str, tipo: str) -> int:
-    """
-    Retorna el hashing, siendo el mismo algoritmo en ambos casos.
-    """
     posicion = 0
     for digito in codigo:
         posicion += int(digito)
@@ -16,8 +13,7 @@ def obtener_hashing(codigo: str, tipo: str) -> int:
 
 def encontrar_espacio(codigo: str, tipo: str) -> int or None:
     """
-    Funcion para buscar un registro tanto en el archivo vendedores como en productos.
-    Esto gracias a que comparten la gran parte de su estructura, (codigo, hashing, area de datos y overflow).
+    Busca la posicion para ubicar un proximo registro.
     """
     LONGITUD_REGISTRO = 64 if tipo == 'productos' else 35
     PATH = productos_path if tipo == 'productos' else vendedores_path
@@ -44,8 +40,8 @@ def encontrar_espacio(codigo: str, tipo: str) -> int or None:
 
 def obtener_uno(codigo: str, tipo: str) -> [int, str or None]:
     """
-    Retorna la posicion y el contenido del registro tanto en el archivo vendedores como en productos.
-    [int: posicion, str: registro] or None
+    Retorna la posicion y el contenido de un registro.
+    [posicion:int -> -1 si no existe, registro:str or None si no existe]
     """
     LONGITUD_REGISTRO = 64 if tipo == 'productos' else 35
     PATH = productos_path if tipo == 'productos' else vendedores_path
