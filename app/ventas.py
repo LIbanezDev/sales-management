@@ -1,19 +1,18 @@
 import os
-from datetime import date
-from os.path import dirname, join
-from typing import Dict
+import datetime
+import typing
 
 import app
 import dto
 
-ENC_VTA_PATH = join(dirname(__file__), '../db/ENC_VTA.dat')
-DET_VTA_PATH = join(dirname(__file__), '../db/DET_VTA.dat')
+ENC_VTA_PATH = os.path.join(os.path.dirname(__file__), '../db/ENC_VTA.dat')
+DET_VTA_PATH = os.path.join(os.path.dirname(__file__), '../db/DET_VTA.dat')
 
 
 def validar_fecha(fecha: str) -> [bool, str or None]:  # => [es_valida, error or None]
     try:
         day, month, year = fecha.strip().split('/')
-        date(int(year), int(month), int(day))  # Si fecha no es valida, date() lanza un ValueError
+        datetime.datetime(int(year), int(month), int(day))  # Si fecha no es valida, datetime() lanza un ValueError
         if int(year) < 2010 or int(year) > 2020:
             raise ValueError('Anio debe estar entre 2010 y 2020', 'year')
         return [True, None]
@@ -109,7 +108,7 @@ def realizar_venta():
         if registro_vendedor is None:
             raise Exception('Vendedor no existe...')
 
-        productos_dict: Dict[int, int] = {}  # {codigo: cantidad}
+        productos_dict: typing.Dict[int, int] = {}  # {codigo: cantidad}
         while True:
             codigo = input("Ingrese codigo de producto, 0 para finalizar: ")
             if codigo == "0":
