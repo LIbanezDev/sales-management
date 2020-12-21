@@ -9,10 +9,10 @@ LONGITUD_REGISTRO = 64
 productos_path = join(dirname(__file__), '../db/PRODUCTOS.dat')
 
 
-def restar_stock(codigo: str, cantidad: int):
+def modificar_stock(codigo: str, cantidad: int, operacion: str = '-'):
     [posicion, registro] = mantenedores.compartidos.obtener_uno(codigo, 'productos')
     stock_actual = int(registro[61:64])
-    nuevo_stock = stock_actual - cantidad
+    nuevo_stock = stock_actual - cantidad if operacion == '-' else stock_actual + cantidad
     registro_editado = registro[0:61] + str(nuevo_stock).zfill(3)
     FILE = open(productos_path, 'r+')
     FILE.seek(posicion)

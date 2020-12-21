@@ -1,10 +1,10 @@
 from datetime import date
 from os.path import dirname, join
 from typing import Dict
-
+import os
 import dto
 import mantenedores
-from .productos import restar_stock
+from .productos import modificar_stock
 
 ENC_VTA_PATH = join(dirname(__file__), '../db/ENC_VTA.dat')
 DET_VTA_PATH = join(dirname(__file__), '../db/DET_VTA.dat')
@@ -23,7 +23,7 @@ def validar_fecha(fecha: str) -> [bool, str or None]:  # => [es_valida, error or
 
 def existe_vendedor_en_ventas(codigo_vendedor: str) -> bool:
     """
-    Helper para verificar si un vendedor realizado ventas.
+    Retorna si un vendedor realizado ventas.
     """
     FILE = open(ENC_VTA_PATH)
     existe = False
@@ -38,7 +38,7 @@ def existe_vendedor_en_ventas(codigo_vendedor: str) -> bool:
 
 def existe_producto_en_ventas(codigo_producto: str) -> bool:
     """
-    Helper para verificar si un producto ha sido vendido.
+    Retorna si un producto ha sido vendido.
     """
     FILE = open(DET_VTA_PATH)
     existe = False
@@ -62,7 +62,19 @@ def obtener_ultimo_enc_vta() -> dto.EncabezadoVenta or None:
     return dto.EncabezadoVenta(ultimo)  # 1;18/01/2013;12345;V
 
 
-# Helper
+def obtener_encabezado(num_boleta: int):
+    ENC_FILE = open(ENC_VTA_PATH)
+    registro_enc = ENC_FILE.readline()
+    while registro_enc != '':
+        encabezado = dto.EncabezadoVenta(registro_enc)
+        if encabezado.num_boleta == num_boleta:
+            ENC_FILE.close()
+            return encabezado
+        registro_enc = ENC_FILE.readline()
+    ENC_FILE.close()
+    return None
+
+
 def obtener_recaudacion_detalle_venta(encabezado: dto.EncabezadoVenta) -> int:
     """
     Retorna el total de una venta especifica del estilo num_boleta:cod_producto:cantidad
@@ -125,7 +137,7 @@ def realizar_venta():
         DET_VTA_FILE = open(DET_VTA_PATH, 'a')
         for cod_producto in productos_dict:
             DET_VTA_FILE.write(str(ultimo_codigo).rjust(5) + ';' + str(cod_producto) + ';' + str(productos_dict[cod_producto]) + '\n')
-            restar_stock(str(cod_producto), productos_dict[cod_producto])
+            modificar_stock(str(cod_producto), productos_dict[cod_producto])
         ENC_VTA_FILE.write(str(ultimo_codigo).rjust(5) + ';' + fecha + ';' + str(cod_vendedor) + ';' + 'V' + '\n')
         ENC_VTA_FILE.close()
         DET_VTA_FILE.close()
@@ -136,23 +148,13 @@ def realizar_venta():
 
 def consultar_venta():
     num_boleta = int(input('Ingrese numero de boleta: '))
-    # Validando que exista el numero de boleta...
-    ENC_FILE = open(ENC_VTA_PATH)
-    registro_enc = ENC_FILE.readline()
-    encabezado_buscado = None
-    while registro_enc != '' and encabezado_buscado is None:
-        encabezado = dto.EncabezadoVenta(registro_enc)
-        if encabezado.num_boleta == num_boleta:
-            encabezado_buscado = encabezado
-        registro_enc = ENC_FILE.readline()
-    ENC_FILE.close()
-    # -------------------
-    if encabezado_buscado is None:
+    encabezado = obtener_encabezado(num_boleta)
+    if encabezado is None:
         print('Numero de boleta no existe.')
     else:
         # Listando datos de la boleta y del vendedor.
-        print('Numero de boleta:', encabezado_buscado.num_boleta, '- Fecha:', encabezado_buscado.fecha)
-        vendedor = dto.Vendedor(mantenedores.compartidos.obtener_uno(str(encabezado_buscado.cod_vendedor), 'vendedores')[1])
+        print('Numero de boleta:', encabezado.num_boleta, '- Fecha:', encabezado.fecha)
+        vendedor = dto.Vendedor(mantenedores.compartidos.obtener_uno(str(encabezado.cod_vendedor), 'vendedores')[1])
         print('Codigo Vendedor :', vendedor.codigo, '- Nombre:', vendedor.nombre)
         # -----------
 
@@ -173,4 +175,37 @@ def consultar_venta():
 
 
 def anular_venta():
-    pass
+    num_boleta = int(input('Ingrese numero de boleta: '))
+    encabezado = obtener_encabezado(num_boleta)
+    if encabezado is None:
+        print('Numero de boleta no existe.')
+    else:
+        print('Codigo:', encabezado.num_boleta, '- Fecha:', encabezado.fecha)
+        if encabezado.estado == 'N':
+            print('Venta ya esta anulada.')
+        else:
+            resp = ''
+            while resp != 's' and resp != 'n':
+                resp = input('Esta seguro que desea anular? (s/n)')
+                if resp != 's' and resp != 'n':
+                    print('Debe escribir s o n')
+            if resp == 's':
+                DET_FILE = open(DET_VTA_PATH)
+                for linea_detalle in DET_FILE:
+                    detalle = dto.DetalleVenta(linea_detalle)
+                    if detalle.num_boleta == encabezado.num_boleta:
+                        mantenedores.productos.modificar_stock(str(detalle.cod_producto), detalle.cantidad, '+')
+                DET_FILE.close()
+                ENC_FILE = open(ENC_VTA_PATH)
+                AUX_ENC_FILE = open('./db/ENC_VTA.tmp', 'w')
+                for linea_encabezado in ENC_FILE:
+                    linea_encabezado_arr = linea_encabezado.split(';')
+                    if int(linea_encabezado_arr[0]) == num_boleta:
+                        AUX_ENC_FILE.write(linea_encabezado_arr[0] + ';' + linea_encabezado_arr[1] + ';' + linea_encabezado_arr[2] + ';' + 'N' + '\n')
+                    else:
+                        AUX_ENC_FILE.write(linea_encabezado)
+                ENC_FILE.close()
+                AUX_ENC_FILE.close()
+                os.remove(ENC_VTA_PATH)
+                os.rename('./db/ENC_VTA.tmp', ENC_VTA_PATH)
+                print('Venta anulada, stock reestablecido.')

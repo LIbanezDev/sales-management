@@ -4,6 +4,7 @@ import dto
 from .compartidos import obtener_uno
 from .productos import LONGITUD_REGISTRO as LARGO_PRODUCTO, productos_path
 from .ventas import ENC_VTA_PATH, obtener_recaudacion_detalle_venta
+from datetime import date, datetime
 
 
 def listar_stock_critico():
@@ -23,17 +24,19 @@ def listar_stock_critico():
 
 
 def listar_reacudacion_diaria():
-    recaudacion_diaria: Dict[str, int] = {}  # {fecha: recaudacion_total}
+    recaudacion_diaria: Dict[int, int] = {}  # {timestamp => recaudacion_total}
     ENC_VTA_FILE = open(ENC_VTA_PATH)
     for linea_enc in ENC_VTA_FILE:
         encabezado = dto.EncabezadoVenta(linea_enc)
-        if encabezado.fecha not in recaudacion_diaria:  # Si la fecha aun no existe, inicializa su recaudacion del dia en 0
-            recaudacion_diaria[encabezado.fecha] = 0
-        recaudacion_diaria[encabezado.fecha] += obtener_recaudacion_detalle_venta(encabezado)
+        dia, mes, anho = encabezado.fecha.split('/')
+        timestamp = int(datetime.timestamp(datetime(int(anho), int(mes), int(dia))))  # Convirtiendo fecha a timestamp para luego listar de menor a mayor.
+        if timestamp not in recaudacion_diaria:  # Si la fecha aun no existe, inicializa su recaudacion del dia en 0
+            recaudacion_diaria[timestamp] = 0
+        recaudacion_diaria[timestamp] += obtener_recaudacion_detalle_venta(encabezado)
     ENC_VTA_FILE.close()
     if recaudacion_diaria:
-        for fecha in recaudacion_diaria:
-            print(fecha, ':', recaudacion_diaria[fecha], '$')
+        for timestamp in sorted(recaudacion_diaria):  # ordenando los timestamp para listar las recaudaciones de mas antigua a la mas nueva.
+            print(date.fromtimestamp(timestamp), ':', recaudacion_diaria[timestamp], '$')
     else:
         print('No hay ventas aun.')
     input('Presione enter para continuar...')
