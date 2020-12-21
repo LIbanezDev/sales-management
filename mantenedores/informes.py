@@ -31,8 +31,9 @@ def listar_reacudacion_diaria():
             recaudacion_diaria[encabezado.fecha] = 0
         recaudacion_diaria[encabezado.fecha] += obtener_recaudacion_detalle_venta(encabezado)
     ENC_VTA_FILE.close()
-    for fecha in recaudacion_diaria:
-        print(fecha, ':', recaudacion_diaria[fecha], '$')
+    if recaudacion_diaria:
+        for fecha in recaudacion_diaria:
+            print(fecha, ':', recaudacion_diaria[fecha], '$')
     else:
         print('No hay ventas aun.')
     input('Presione enter para continuar...')

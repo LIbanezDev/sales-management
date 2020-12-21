@@ -32,7 +32,6 @@ while opt != 5:
         print('2. Consultar venta')
         print('3. Anular venta')
         opt_final = int(input('Ingrese opcion: '))
-        print('')
         if opt_final == 1:
             ventas.realizar_venta()
         elif opt_final == 2:
@@ -48,7 +47,6 @@ while opt != 5:
         print('4. Eliminar vendedor')
         print('5. Listar vendedores')
         opt_final = int(input('Ingrese opcion: '))
-        print('')
         if opt_final == 1:
             vendedores.agregar()
         elif opt_final == 2:
@@ -68,7 +66,6 @@ while opt != 5:
         print('4. Eliminar productos')
         print('5. Listar productos')
         opt_final = int(input('Ingrese opcion: '))
-        print('')
         if opt_final == 1:
             productos.agregar()
         elif opt_final == 2:
@@ -86,7 +83,6 @@ while opt != 5:
         print('2. Recaudacion diaria')
         print('3. Ventas por vendedor')
         opt_final = int(input('Ingrese opcion: '))
-        print('')
         if opt_final == 1:
             informes.listar_stock_critico()
         elif opt_final == 2:

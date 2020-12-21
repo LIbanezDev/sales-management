@@ -135,7 +135,41 @@ def realizar_venta():
 
 
 def consultar_venta():
-    pass
+    num_boleta = int(input('Ingrese numero de boleta: '))
+    # Validando que exista el numero de boleta...
+    ENC_FILE = open(ENC_VTA_PATH)
+    registro_enc = ENC_FILE.readline()
+    encabezado_buscado = None
+    while registro_enc != '' and encabezado_buscado is None:
+        encabezado = dto.EncabezadoVenta(registro_enc)
+        if encabezado.num_boleta == num_boleta:
+            encabezado_buscado = encabezado
+        registro_enc = ENC_FILE.readline()
+    ENC_FILE.close()
+    # -------------------
+    if encabezado_buscado is None:
+        print('Numero de boleta no existe.')
+    else:
+        # Listando datos de la boleta y del vendedor.
+        print('Numero de boleta:', encabezado_buscado.num_boleta, '- Fecha:', encabezado_buscado.fecha)
+        vendedor = dto.Vendedor(mantenedores.compartidos.obtener_uno(str(encabezado_buscado.cod_vendedor), 'vendedores')[1])
+        print('Codigo Vendedor :', vendedor.codigo, '- Nombre:', vendedor.nombre)
+        # -----------
+
+        # Leyendo el detalle de venta.
+        DET_FILE = open(DET_VTA_PATH)
+        total_venta = 0
+        for linea_detalle in DET_FILE:
+            detalle = dto.DetalleVenta(linea_detalle)
+            if detalle.num_boleta == num_boleta:
+                producto = dto.Producto(mantenedores.compartidos.obtener_uno(str(detalle.cod_producto), 'productos')[1])
+                total_producto_actual = producto.precio * detalle.cantidad
+                print('Codigo Producto:', producto.codigo, '- Nombre:', producto.nombre, '- Precio:', producto.precio, '- Cantidad Vendida:', detalle.cantidad,
+                      '- Total Venta:', total_producto_actual)
+                total_venta += total_producto_actual
+        DET_FILE.close()
+        # ------------------
+        print('Total de venta codigo', num_boleta, ':', total_venta)
 
 
 def anular_venta():
