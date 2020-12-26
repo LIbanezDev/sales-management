@@ -1,3 +1,5 @@
+# Lucas Vergara - Kevin Figueroa 192-B
+
 import os
 
 from app import ventas, productos, vendedores, informes
