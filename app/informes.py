@@ -52,8 +52,9 @@ def listar_ventas_por_vendedor():
             ventas_por_vendedor[vendedor.nombre] = 0
         ventas_por_vendedor[vendedor.nombre] += app.ventas.obtener_total_venta(encabezado)
     ENC_VTA_FILE.close()
-    for vendedor in ventas_por_vendedor:
-        print(vendedor, ':', ventas_por_vendedor[vendedor])
+    if ventas_por_vendedor:
+        for vendedor in ventas_por_vendedor:
+            print(vendedor, ':', ventas_por_vendedor[vendedor])
     else:
-        print('No hay vendedores aun.')
+        print('No hay ventas aun.')
     input('Presione enter para continuar...')

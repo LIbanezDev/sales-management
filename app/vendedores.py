@@ -53,11 +53,11 @@ def eliminar():
     if registro is None:
         print('Vendedor no existe.')
     else:
-        vendedor = dto.Vendedor(registro)
-        print('Nombre:', vendedor.nombre)
         if app.ventas.existe_vendedor_en_ventas(codigo):
             print('El vendedor ha hecho ventas, asi que no se puede eliminar.')
         else:
+            vendedor = dto.Vendedor(registro)
+            print('Nombre:', vendedor.nombre)
             FILE = open(VENDEDORES_PATH, 'r+')
             FILE.seek(posicion)
             FILE.write('00000' + " " * (LONGITUD_REGISTRO - 5))
@@ -76,7 +76,8 @@ def listar():
             archivo_vacio = False
             print('Codigo:', int(codigo), '- Nombre:', nombre)
     if archivo_vacio:
-        input('El archivo no tiene vendedores aun.\nEnter para continuar...')
+        input('El archivo no tiene vendedores aun.')
     else:
-        input('Fin del listado.\nEnter para continuar...')
+        input('Fin del listado.')
     file.close()
+    print('\nEnter para continuar...')
