@@ -15,11 +15,11 @@ def listar_stock_critico():
             if producto.stock < 5:
                 hay_stock_critico = True
                 print(producto.nombre, 'con precio', producto.precio, 'tiene', producto.stock, 'unidades restantes.')
-        registro = FILE.read(app.productos.PRODUCTOS_PATH)
+        registro = FILE.read(app.productos.LONGITUD_REGISTRO)
     if not hay_stock_critico:
         print('No hay productos en stock critico.')
     input('Presione enter para continuar...')
-
+    FILE.close()
 
 def listar_reacudacion_diaria():
     recaudacion_diaria: Dict[int, int] = {}  # {timestamp => recaudacion_total}

@@ -29,12 +29,16 @@ if __name__ == '__main__':
         print('3. Productos')
         print('4. Informes')
         print('5. Salir')
-        opt = int(input('Ingrese opcion: '))
+        opt = input('Ingrese opcion: ')
+        if opt >= '0'and opt <= '9':
+            opt = int(opt)
         if opt == 1:
             print('1. Registrar venta')
             print('2. Consultar venta')
             print('3. Anular venta')
-            opt_final = int(input('Ingrese opcion: '))
+            opt_final = input('Ingrese opcion: ')
+            if opt_final >= '0' and opt_final <= '9':
+                opt_final = int(opt_final)
             if opt_final == 1:
                 ventas.realizar_venta()
             elif opt_final == 2:
@@ -49,7 +53,9 @@ if __name__ == '__main__':
             print('3. Consultar vendedor')
             print('4. Eliminar vendedor')
             print('5. Listar vendedores')
-            opt_final = int(input('Ingrese opcion: '))
+            opt_final = input('Ingrese opcion: ')
+            if opt_final >= '0' and opt_final <= '9':
+                opt_final = int(opt_final)
             if opt_final == 1:
                 vendedores.agregar()
             elif opt_final == 2:
@@ -68,7 +74,9 @@ if __name__ == '__main__':
             print('3. Consultar productos')
             print('4. Eliminar productos')
             print('5. Listar productos')
-            opt_final = int(input('Ingrese opcion: '))
+            opt_final = input('Ingrese opcion: ')
+            if opt_final >= '0' and opt_final <= '9':
+                opt_final = int(opt_final)
             if opt_final == 1:
                 productos.agregar()
             elif opt_final == 2:
@@ -85,7 +93,9 @@ if __name__ == '__main__':
             print('1. Productos con stock critico')
             print('2. Recaudacion diaria')
             print('3. Ventas por vendedor')
-            opt_final = int(input('Ingrese opcion: '))
+            opt_final = input('Ingrese opcion: ')
+            if opt_final >= '0' and opt_final <= '9':
+                opt_final = int(opt_final)
             if opt_final == 1:
                 informes.listar_stock_critico()
             elif opt_final == 2:
