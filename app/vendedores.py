@@ -78,6 +78,6 @@ def listar():
     if archivo_vacio:
         input('El archivo no tiene vendedores aun.')
     else:
-        input('Fin del listado.')
+        print('Fin del listado.')
     file.close()
-    print('\nEnter para continuar...')
+    input('\nEnter para continuar...')
