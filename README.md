@@ -1,6 +1,6 @@
 # Sales Management
 
-Permite realizar una gestion 
+Permite realizar una gestion de ventas, vendedores y productos. Cuenta con una base de datos basada en archivos; se crea al iniciar el proyecto.
 
 ## Tecnologías utilizadas
 
@@ -16,7 +16,7 @@ python main.py
 
 ## Contribuciones
 
-Los pull requests están abiertos y son bienvenidos.
+Los pull requests son bienvenidos.
 
 ## Licencia
 
