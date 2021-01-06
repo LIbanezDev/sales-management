@@ -1,6 +1,6 @@
 # Sales Management
 
-Permite realizar una gestion de ventas, vendedores y productos. Cuenta con una base de datos basada en archivos; se crea al iniciar el proyecto.
+Permite realizar una gestion de ventas, vendedores y productos. Cuenta con una base de datos en archivos; se crea al iniciar el proyecto.
 
 ## Tecnologías utilizadas
 
