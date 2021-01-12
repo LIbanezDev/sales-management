@@ -1,1 +1,1 @@
-from . import compartidos, ventas, productos, vendedores, informes
+from . import ventas, informes, compartidos, vendedores, productos

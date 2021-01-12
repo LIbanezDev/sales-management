@@ -1,6 +1,5 @@
-from datetime import date, datetime
-from typing import Dict
-
+from datetime import datetime
+from typing import Dict, List
 import app
 import dto
 
@@ -22,40 +21,49 @@ def listar_stock_critico():
     FILE.close()
 
 
-def listar_reacudacion_diaria():
-    recaudacion_diaria: Dict[int, int] = {}  # {timestamp => recaudacion_total}
+def timestamp_to_date(item):
+    return {
+        'fecha': datetime.fromtimestamp(item['fecha']).strftime('%d/%m/%Y'),
+        'total': item['total']
+    }
+
+
+def obtener_recaudacion_diaria():
+    recaudacion_diaria: List = []  # {timestamp => recaudacion_total}
     ENC_VTA_FILE = open(app.ventas.ENC_VTA_PATH)
     for linea_enc in ENC_VTA_FILE:
         encabezado = dto.EncabezadoVenta(linea_enc)
         dia, mes, anho = encabezado.fecha.split('/')
         timestamp = int(datetime.timestamp(datetime(int(anho), int(mes), int(dia))))  # Convirtiendo fecha a timestamp para luego listar de menor a mayor.
-        if timestamp not in recaudacion_diaria:  # Si la fecha aun no existe, inicializa su recaudacion del dia en 0
-            recaudacion_diaria[timestamp] = 0
-        recaudacion_diaria[timestamp] += app.ventas.obtener_total_venta(encabezado)
+        if datetime.fromtimestamp(timestamp) not in recaudacion_diaria:  # Si la fecha aun no existe, inicializa su recaudacion del dia en 0
+            recaudacion_diaria.append({'fecha': timestamp, 'total': 0})
+        recaudacion_diaria = buscar_y_sumar_recaudacion(recaudacion_diaria, timestamp, encabezado, 'fecha')
     ENC_VTA_FILE.close()
-    if recaudacion_diaria:
-        for timestamp in sorted(recaudacion_diaria):  # ordenando los timestamp para listar las recaudaciones de mas antigua a la mas nueva.
-            print(date.fromtimestamp(timestamp), ':', recaudacion_diaria[timestamp], '$')
-    else:
-        print('No hay ventas aun.')
-    input('Presione enter para continuar...')
+    recaudacion_ordenada = sorted(recaudacion_diaria, key=lambda k: k['fecha'])
+    recaudacion_ordenada_format = list(map(timestamp_to_date, recaudacion_ordenada))
+    return recaudacion_ordenada_format
 
 
-def listar_ventas_por_vendedor():
-    ventas_por_vendedor: Dict[str, int] = {}  # {nombre_vendedor: total_recaudado}
+def buscar_y_sumar_recaudacion(lista: List, key, encabezado, tipo: str) -> List[Dict[str, int]]:
+    for i in range(len(lista) - 1, -1, -1):
+        if (lista[i]['vendedor']['nombre'] if tipo == 'vendedor' else lista[i]['fecha']) == key:
+            lista[i]['total'] += app.ventas.obtener_total_venta(encabezado)
+            return lista
+    return lista
+
+
+def obtener_ventas_por_vendedor() -> List[Dict[str, int]]:
+    ventas_por_vendedor: List = []  # {nombre_vendedor: total_recaudado}
     ENC_VTA_FILE = open(app.ventas.ENC_VTA_PATH)
     for linea_enc in ENC_VTA_FILE:
         encabezado = dto.EncabezadoVenta(linea_enc)
         registro_vendedor = app.compartidos.obtener_uno(str(encabezado.cod_vendedor), 'vendedores')[
             1]  # Retorna [posicion, registro] => Obteniendo solo registro
         vendedor = dto.Vendedor(registro_vendedor)
-        if vendedor.nombre not in ventas_por_vendedor:  # Si el vendedor aun no existe, inicializa su recaudacion en 0
-            ventas_por_vendedor[vendedor.nombre] = 0
-        ventas_por_vendedor[vendedor.nombre] += app.ventas.obtener_total_venta(encabezado)
+        if not any(
+                vendedor.nombre == venta['vendedor']['nombre'] for venta in
+                ventas_por_vendedor):  # Si el vendedor aun no existe, inicializa su recaudacion en 0
+            ventas_por_vendedor.append({'vendedor': vendedor.__dict__, 'total': 0})
+        ventas_por_vendedor = buscar_y_sumar_recaudacion(ventas_por_vendedor, vendedor.nombre, encabezado, 'vendedor')
     ENC_VTA_FILE.close()
-    if ventas_por_vendedor:
-        for vendedor in ventas_por_vendedor:
-            print(vendedor, ':', ventas_por_vendedor[vendedor])
-    else:
-        print('No hay ventas aun.')
-    input('Presione enter para continuar...')
+    return ventas_por_vendedor
